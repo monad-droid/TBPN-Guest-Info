@@ -68,7 +68,8 @@ test("fetch-guests.js exists and is valid JS", async () => {
   const code = readFileSync(join(__dirname, "..", "scripts", "fetch-guests.js"), "utf-8");
   assert(code.includes("extractGuestInfo"), "Should have extractGuestInfo function");
   assert(code.includes("mergeGuests"), "Should have mergeGuests function");
-  assert(code.includes("fetchVideosFromYouTubeAPI"), "Should have fetchVideosFromYouTubeAPI function");
+  assert(code.includes("fetchEpisodesFromRSS"), "Should have fetchEpisodesFromRSS function");
+  assert(code.includes("fetchEpisodesFromYouTubeAPI"), "Should have fetchEpisodesFromYouTubeAPI function");
   assert(code.includes("ANTHROPIC_API_KEY"), "Should reference ANTHROPIC_API_KEY");
   assert(code.includes("YOUTUBE_API_KEY"), "Should reference YOUTUBE_API_KEY");
 });
@@ -92,6 +93,39 @@ test("app.js has required functions", () => {
   assert(js.includes("renderGuests"), "Should have renderGuests function");
   assert(js.includes("escapeHtml"), "Should have escapeHtml function");
   assert(js.includes("data/guests.json"), "Should fetch guests.json");
+});
+
+// --- Test: mergeGuests logic ---
+
+test("mergeGuests deduplicates and sorts", () => {
+  // Inline test of merge logic (same algorithm as fetch-guests.js)
+  function mergeGuests(existing, newGuests) {
+    const seen = new Set(existing.map((g) => `${g.guest}|${g.date}`));
+    const merged = [...existing];
+    for (const guest of newGuests) {
+      const key = `${guest.guest}|${guest.date}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        merged.push(guest);
+      }
+    }
+    merged.sort((a, b) => b.date.localeCompare(a.date));
+    return merged;
+  }
+
+  const existing = [
+    { guest: "Alice", date: "2026-03-20", company: "A", companyDescription: "A co" },
+  ];
+  const newGuests = [
+    { guest: "Alice", date: "2026-03-20", company: "A", companyDescription: "A co" }, // duplicate
+    { guest: "Bob", date: "2026-03-21", company: "B", companyDescription: "B co" },
+    { guest: "Carol", date: "2026-03-19", company: "C", companyDescription: "C co" },
+  ];
+
+  const merged = mergeGuests(existing, newGuests);
+  assert.strictEqual(merged.length, 3, "Should have 3 entries (1 duplicate removed)");
+  assert.strictEqual(merged[0].guest, "Bob", "Most recent first");
+  assert.strictEqual(merged[2].guest, "Carol", "Oldest last");
 });
 
 // --- Results ---

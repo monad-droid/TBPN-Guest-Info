@@ -31,14 +31,17 @@ function renderGuests(filter = "") {
 
   guestList.innerHTML = filtered
     .map((g) => {
-      const videoLink = g.videoId
-        ? `<a class="video-link" href="https://www.youtube.com/watch?v=${encodeURIComponent(g.videoId)}" target="_blank" rel="noopener">Watch interview</a>`
+      const linkUrl = g.videoId
+        ? `https://www.youtube.com/watch?v=${encodeURIComponent(g.videoId)}`
+        : g.episodeLink || "";
+      const episodeLink = linkUrl
+        ? `<a class="video-link" href="${escapeHtml(linkUrl)}" target="_blank" rel="noopener">Listen/Watch</a>`
         : "";
       return `
     <div class="guest-card">
       <div class="card-header">
         <div class="date">${escapeHtml(formatDate(g.date))}</div>
-        ${videoLink}
+        ${episodeLink}
       </div>
       <div class="guest-name">${escapeHtml(g.guest)}</div>
       <div class="company-name">${escapeHtml(g.company)}</div>
