@@ -112,7 +112,7 @@ Episodes titled "Diet TBPN" are highlight reels with no new guest info — skip 
 For each episode below, extract ALL guests who were interviewed. For each guest, provide:
 - guest: Full name of the guest
 - company: The company they represent (use your knowledge of the tech/business world)
-- companyDescription: A brief (1-2 sentence) description of what the company does. Use your knowledge. If you truly don't know, write "Company description not available."
+- companyDescription: Exactly ONE sentence describing what the company does. Keep it short and clear. Use your knowledge. If you truly don't know, write "Company description not available."
 - date: The date of the episode (YYYY-MM-DD format)
 - episodeLink: The link to the episode
 
