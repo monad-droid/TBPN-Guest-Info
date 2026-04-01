@@ -70,7 +70,7 @@ test("fetch-guests.js exists and is valid JS", async () => {
   assert(code.includes("mergeGuests"), "Should have mergeGuests function");
   assert(code.includes("fetchEpisodesFromRSS"), "Should have fetchEpisodesFromRSS function");
   assert(code.includes("fetchEpisodesFromYouTubeAPI"), "Should have fetchEpisodesFromYouTubeAPI function");
-  assert(code.includes("ANTHROPIC_API_KEY"), "Should reference ANTHROPIC_API_KEY");
+  assert(code.includes("GEMINI_API_KEY"), "Should reference GEMINI_API_KEY");
   assert(code.includes("YOUTUBE_API_KEY"), "Should reference YOUTUBE_API_KEY");
 });
 

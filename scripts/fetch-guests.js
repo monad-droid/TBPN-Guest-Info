@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { parseStringPromise } from "xml2js";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { dirname, join } from "path";
@@ -8,9 +7,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = join(__dirname, "..", "data", "guests.json");
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const TBPN_RSS_URL = "https://feeds.transistor.fm/technology-brother";
+const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 // --- RSS Feed (Primary — no API key needed) ---
 
@@ -77,14 +78,12 @@ async function fetchEpisodesFromYouTubeAPI() {
   return fetchRecentVideos(uploadsPlaylistId);
 }
 
-// --- Claude API: Extract Guest Info ---
+// --- Gemini API: Extract Guest Info ---
 
 export async function extractGuestInfo(episodes) {
-  if (!ANTHROPIC_API_KEY) {
-    throw new Error("ANTHROPIC_API_KEY is required");
+  if (!GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is required. Get a free key at https://aistudio.google.com");
   }
-
-  const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
   const episodesText = episodes
     .map(
@@ -93,13 +92,7 @@ export async function extractGuestInfo(episodes) {
     )
     .join("\n\n");
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4096,
-    messages: [
-      {
-        role: "user",
-        content: `You are analyzing TBPN (Technology Business Programming Network) episode data to extract guest interview information.
+  const prompt = `You are analyzing TBPN (Technology Business Programming Network) episode data to extract guest interview information.
 
 TBPN is a daily live tech show hosted by John Coogan and Jordi Hays that interviews startup founders, CEOs, and tech figures. Each episode may feature multiple guest call-ins.
 
@@ -123,7 +116,7 @@ IMPORTANT:
 - Some high-profile guests appear in the topic portion (e.g., "Travis Kalanick Joins...")
 - Use your knowledge to identify the company for well-known founders/CEOs
 
-Return ONLY a valid JSON array. No markdown, no explanation. If no guests are found, return [].
+Return ONLY a valid JSON array. No markdown, no code fences, no explanation. If no guests are found, return [].
 
 Example output:
 [
@@ -138,12 +131,32 @@ Example output:
 
 Here are the episodes to analyze:
 
-${episodesText}`,
+${episodesText}`;
+
+  const res = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 4096,
       },
-    ],
+    }),
   });
 
-  const text = response.content[0].text.trim();
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Gemini API failed (${res.status}): ${err}`);
+  }
+
+  const data = await res.json();
+  let text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  if (!text) throw new Error("Empty response from Gemini");
+
+  // Strip markdown code fences if Gemini wraps the response
+  text = text.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
+
   return JSON.parse(text);
 }
 
@@ -203,7 +216,7 @@ async function main() {
     return;
   }
 
-  console.log("Extracting guest info with Claude...");
+  console.log("Extracting guest info with Gemini...");
   const newGuests = await extractGuestInfo(episodes);
   console.log(`Extracted ${newGuests.length} guest appearances`);
 
