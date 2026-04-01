@@ -1,0 +1,20 @@
+[
+  {
+    "date": "2026-04-01",
+    "guest": "Jane Smith",
+    "company": "Acme Robotics",
+    "companyDescription": "Builds autonomous warehouse robots that handle sorting and packing for e-commerce fulfillment centers."
+  },
+  {
+    "date": "2026-03-31",
+    "guest": "Carlos Rivera",
+    "company": "GreenGrid Energy",
+    "companyDescription": "Develops smart grid software that helps utilities balance renewable energy supply with real-time demand."
+  },
+  {
+    "date": "2026-03-30",
+    "guest": "Priya Patel",
+    "company": "MedLens AI",
+    "companyDescription": "Uses computer vision to help radiologists detect early-stage cancers in medical imaging scans."
+  }
+]

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TBPN Guest Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>TBPN Guest Tracker</h1>
+    <p class="subtitle">Who's being interviewed and what their company does</p>
+  </header>
+
+  <main>
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search by guest, company, or description...">
+    </div>
+    <div id="guest-list"></div>
+    <p id="empty-state" class="empty" hidden>No guests match your search.</p>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
