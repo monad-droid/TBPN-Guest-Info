@@ -62,12 +62,28 @@ main {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+.guest-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
 .guest-card .date {
   font-size: 0.8rem;
   color: #86868b;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-bottom: 0.4rem;
+}
+
+.guest-card .video-link {
+  font-size: 0.8rem;
+  color: #0071e3;
+  text-decoration: none;
+}
+
+.guest-card .video-link:hover {
+  text-decoration: underline;
 }
 
 .guest-card .guest-name {

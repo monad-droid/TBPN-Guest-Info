@@ -14,6 +14,12 @@ function formatDate(dateStr) {
   });
 }
 
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 function renderGuests(filter = "") {
   const query = filter.toLowerCase();
   const filtered = guests.filter(
@@ -24,16 +30,21 @@ function renderGuests(filter = "") {
   );
 
   guestList.innerHTML = filtered
-    .map(
-      (g) => `
+    .map((g) => {
+      const videoLink = g.videoId
+        ? `<a class="video-link" href="https://www.youtube.com/watch?v=${encodeURIComponent(g.videoId)}" target="_blank" rel="noopener">Watch interview</a>`
+        : "";
+      return `
     <div class="guest-card">
-      <div class="date">${formatDate(g.date)}</div>
-      <div class="guest-name">${g.guest}</div>
-      <div class="company-name">${g.company}</div>
-      <div class="company-desc">${g.companyDescription}</div>
-    </div>
-  `
-    )
+      <div class="card-header">
+        <div class="date">${escapeHtml(formatDate(g.date))}</div>
+        ${videoLink}
+      </div>
+      <div class="guest-name">${escapeHtml(g.guest)}</div>
+      <div class="company-name">${escapeHtml(g.company)}</div>
+      <div class="company-desc">${escapeHtml(g.companyDescription)}</div>
+    </div>`;
+    })
     .join("");
 
   emptyState.hidden = filtered.length > 0;
@@ -43,7 +54,14 @@ async function init() {
   const res = await fetch("data/guests.json");
   guests = await res.json();
   guests.sort((a, b) => b.date.localeCompare(a.date));
-  renderGuests();
+
+  if (guests.length === 0) {
+    emptyState.textContent =
+      'No guests yet. Run "npm run fetch" to pull the latest TBPN interviews.';
+    emptyState.hidden = false;
+  } else {
+    renderGuests();
+  }
 }
 
 searchInput.addEventListener("input", (e) => renderGuests(e.target.value));

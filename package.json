@@ -1,0 +1,15 @@
+{
+  "name": "tbpn-guest-info",
+  "version": "1.0.0",
+  "description": "Automatically tracks TBPN daily guest interviews and their companies",
+  "scripts": {
+    "fetch": "node scripts/fetch-guests.js",
+    "serve": "npx serve .",
+    "test": "node tests/test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "xml2js": "^0.6.2"
+  },
+  "type": "module"
+}
